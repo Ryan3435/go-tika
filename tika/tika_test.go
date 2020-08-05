@@ -50,7 +50,7 @@ func TestCallError(t *testing.T) {
 	}
 	for _, test := range tests {
 		c := NewClient(nil, test.url)
-		if _, err := c.call(context.Background(), nil, test.method, "", nil); err == nil {
+		if _, err := c.call(context.Background(), nil, test.method, "", "", nil); err == nil {
 			t.Errorf("call(%q, %q) got no error, want error", test.method, test.url)
 		}
 
@@ -64,7 +64,7 @@ func TestParse(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.Parse(context.Background(), nil)
+	got, err := c.Parse(context.Background(), nil, "")
 	if err != nil {
 		t.Fatalf("Parse returned nil, want %q", want)
 	}
@@ -100,7 +100,7 @@ func TestParseRecursive(t *testing.T) {
 		}))
 		defer ts.Close()
 		c := NewClient(nil, ts.URL)
-		got, err := c.ParseRecursive(context.Background(), nil)
+		got, err := c.ParseRecursive(context.Background(), nil, "")
 		if err != nil {
 			t.Errorf("ParseRecursive returned an error: %v, want %v", err, test.want)
 			continue
@@ -112,7 +112,7 @@ func TestParseRecursive(t *testing.T) {
 }
 
 func TestParseRecursiveError(t *testing.T) {
-	if _, err := errorClient.ParseRecursive(context.Background(), nil); err == nil {
+	if _, err := errorClient.ParseRecursive(context.Background(), nil, ""); err == nil {
 		t.Error("ParseRecursive got no error, want an error")
 	}
 }
@@ -124,7 +124,7 @@ func TestMeta(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.Meta(context.Background(), nil)
+	got, err := c.Meta(context.Background(), nil, "")
 	if err != nil {
 		t.Fatalf("Meta returned an error: %v, want %q", err, want)
 	}
@@ -140,7 +140,7 @@ func TestMetaField(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.MetaField(context.Background(), nil, "")
+	got, err := c.MetaField(context.Background(), nil, "", "")
 	if err != nil {
 		t.Errorf("MetaField returned an error: %v, want %q", err, want)
 	}
@@ -172,7 +172,7 @@ func TestLanguage(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.Language(context.Background(), nil)
+	got, err := c.Language(context.Background(), nil, "")
 	if err != nil {
 		t.Errorf("Language returned an error: %v, want %q", err, want)
 	}
@@ -188,7 +188,7 @@ func TestLanguageString(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.LanguageString(context.Background(), "")
+	got, err := c.LanguageString(context.Background(), "", "")
 	if err != nil {
 		t.Errorf("LanguageString returned an error: %v, want %q", err, want)
 	}
@@ -238,7 +238,7 @@ func TestMetaRecursive(t *testing.T) {
 		}))
 		defer ts.Close()
 		c := NewClient(nil, ts.URL)
-		got, err := c.MetaRecursive(context.Background(), nil)
+		got, err := c.MetaRecursive(context.Background(), nil, "")
 		if err != nil {
 			t.Errorf("MetaRecursive returned an error: %v, want %v", err, test.want)
 		}
@@ -307,7 +307,7 @@ func TestMetaRecursiveType(t *testing.T) {
 		}))
 		defer ts.Close()
 		c := NewClient(nil, ts.URL)
-		got, err := c.MetaRecursiveType(context.Background(), nil, test.typeParam)
+		got, err := c.MetaRecursiveType(context.Background(), nil, test.typeParam, "")
 		if err != nil {
 			t.Errorf("MetaRecursive returned an error: %v, want %v", err, test.want)
 		}
@@ -336,7 +336,7 @@ func TestMetaRecursiveError(t *testing.T) {
 		}))
 		defer ts.Close()
 		c := NewClient(nil, ts.URL)
-		_, err := c.MetaRecursive(context.Background(), nil)
+		_, err := c.MetaRecursive(context.Background(), nil, "")
 		if err == nil {
 			t.Errorf("MetaRecursive(%s) got no error, want an error", test.name)
 		}
@@ -350,7 +350,7 @@ func TestTranslate(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.Translate(context.Background(), nil, "translator", "src", "dst")
+	got, err := c.Translate(context.Background(), nil, "translator", "src", "dst", "")
 	if err != nil {
 		t.Errorf("Translate returned an error: %v, want %q", err, want)
 	}
@@ -555,7 +555,7 @@ func TestMetaRecursive_BadResponse(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.MetaRecursive(context.Background(), nil)
+	got, err := c.MetaRecursive(context.Background(), nil, "")
 	if err == nil {
 		t.Errorf("MetaRecursive got %q, want an error", got)
 	}
@@ -567,7 +567,7 @@ func TestMetaRecursive_BadFieldType(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.MetaRecursive(context.Background(), nil)
+	got, err := c.MetaRecursive(context.Background(), nil, "")
 	if err == nil {
 		t.Errorf("MetaRecursive got %q, want an error", got)
 	}

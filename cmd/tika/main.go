@@ -26,7 +26,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/go-tika/tika"
+	"github.com/Ryan3435/go-tika/tika"
 )
 
 func usage() {
@@ -144,23 +144,23 @@ func process(c *tika.Client, action string, file io.Reader) (string, error) {
 		return "", fmt.Errorf("error: invalid action %q", action)
 	case parse:
 		if *recursive {
-			bs, err := c.ParseRecursive(context.Background(), file)
+			bs, err := c.ParseRecursive(context.Background(), file, "")
 			if err != nil {
 				return "", err
 			}
 			return strings.Join(bs, "\n"), nil
 		}
-		return c.Parse(context.Background(), file)
+		return c.Parse(context.Background(), file, "")
 	case detect:
 		return c.Detect(context.Background(), file)
 	case language:
-		return c.Language(context.Background(), file)
+		return c.Language(context.Background(), file, "")
 	case meta:
 		if *metaField != "" {
-			return c.MetaField(context.Background(), file, *metaField)
+			return c.MetaField(context.Background(), file, *metaField, "")
 		}
 		if *recursive {
-			mr, err := c.MetaRecursive(context.Background(), file)
+			mr, err := c.MetaRecursive(context.Background(), file, "")
 			if err != nil {
 				return "", err
 			}
@@ -170,7 +170,7 @@ func process(c *tika.Client, action string, file io.Reader) (string, error) {
 			}
 			return string(bytes), nil
 		}
-		return c.Meta(context.Background(), file)
+		return c.Meta(context.Background(), file, "")
 	case version:
 		return c.Version(context.Background())
 	case parsers:
