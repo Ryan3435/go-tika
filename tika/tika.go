@@ -100,8 +100,9 @@ func (c *Client) call(ctx context.Context, input io.Reader, method, path, mimety
 	if err != nil {
 		return nil, err
 	}
-	req.Header = header
-
+	if header != nil {
+		req.Header = header
+	}
 	if mimetype != "" && strings.ToLower(mimetype) != "default" {
 		req.Header.Add("Content-type", mimetype)
 	}
