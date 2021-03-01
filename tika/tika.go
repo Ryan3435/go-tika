@@ -106,6 +106,7 @@ func (c *Client) call(ctx context.Context, input io.Reader, method, path, mimety
 	if mimetype != "" && strings.ToLower(mimetype) != "default" {
 		req.Header.Add("Content-type", mimetype)
 	}
+	req.Header.Add("X-Tika-Skip-Embedded", "true")
 
 	resp, err := ctxhttp.Do(ctx, c.httpClient, req)
 	if err != nil {
