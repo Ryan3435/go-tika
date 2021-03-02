@@ -157,9 +157,9 @@ func (c *Client) callString(ctx context.Context, input io.Reader, method, path, 
 // Parse parses the given input, returning the body of the input and an error.
 // If the error is not nil, the body is undefined.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
-func (c *Client) Parse(ctx context.Context, input io.Reader, mimetype string, parseAttachments bool) (string, error) {
+func (c *Client) Parse(ctx context.Context, input io.Reader, mimetype string, ignoreEmbeddedFiles bool) (string, error) {
 	header := http.Header{}
-	if parseAttachments {
+	if ignoreEmbeddedFiles {
 		header.Add("X-Tika-Skip-Embedded", "true")
 	}
 	return c.callString(ctx, input, "PUT", "/tika", mimetype, header)
