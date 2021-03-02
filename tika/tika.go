@@ -131,7 +131,6 @@ func (c *Client) call(ctx context.Context, input io.Reader, method, path, mimety
 	if mimetype != "" && strings.ToLower(mimetype) != "default" {
 		req.Header.Add("Content-type", mimetype)
 	}
-	req.Header.Add("X-Tika-Skip-Embedded", "true")
 
 	resp, err := ctxhttp.Do(ctx, c.httpClient, req)
 	if err != nil {
@@ -147,8 +146,8 @@ func (c *Client) call(ctx context.Context, input io.Reader, method, path, mimety
 // callString makes the given request to c and returns the result as a string
 // and error. callString returns an error if the response code is not 200 StatusOK.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
-func (c *Client) callString(ctx context.Context, input io.Reader, method, path, mimetype string) (string, error) {
-	body, err := c.call(ctx, input, method, path, mimetype, nil)
+func (c *Client) callString(ctx context.Context, input io.Reader, method, path, mimetype string, header http.Header) (string, error) {
+	body, err := c.call(ctx, input, method, path, mimetype, header)
 	if err != nil {
 		return "", err
 	}
@@ -158,8 +157,12 @@ func (c *Client) callString(ctx context.Context, input io.Reader, method, path, 
 // Parse parses the given input, returning the body of the input and an error.
 // If the error is not nil, the body is undefined.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
-func (c *Client) Parse(ctx context.Context, input io.Reader, mimetype string) (string, error) {
-	return c.callString(ctx, input, "PUT", "/tika", mimetype)
+func (c *Client) Parse(ctx context.Context, input io.Reader, mimetype string, parseAttachments bool) (string, error) {
+	header := http.Header{}
+	if parseAttachments {
+		header.Add("X-Tika-Skip-Embedded", "true")
+	}
+	return c.callString(ctx, input, "PUT", "/tika", mimetype, header)
 }
 
 // ParseRecursive parses the given input and all embedded documents, returning a
@@ -185,20 +188,20 @@ func (c *Client) ParseRecursive(ctx context.Context, input io.Reader, mimetype s
 // error. If the error is not nil, the metadata is undefined.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
 func (c *Client) Meta(ctx context.Context, input io.Reader, mimetype string) (string, error) {
-	return c.callString(ctx, input, "PUT", "/meta", mimetype)
+	return c.callString(ctx, input, "PUT", "/meta", mimetype, nil)
 }
 
 // MetaField parses the metadata from the given input and returns the given
 // field. If the error is not nil, the result string is undefined.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
 func (c *Client) MetaField(ctx context.Context, input io.Reader, field, mimetype string) (string, error) {
-	return c.callString(ctx, input, "PUT", fmt.Sprintf("/meta/%v", field), mimetype)
+	return c.callString(ctx, input, "PUT", fmt.Sprintf("/meta/%v", field), mimetype, nil)
 }
 
 // Detect gets the mimetype of the given input, returning the mimetype and an
 // error. If the error is not nil, the mimetype is undefined.
 func (c *Client) Detect(ctx context.Context, input io.Reader) (string, error) {
-	return c.callString(ctx, input, "PUT", "/detect/stream", "")
+	return c.callString(ctx, input, "PUT", "/detect/stream", "", nil)
 }
 
 // Language detects the language of the given input, returning the two letter
@@ -206,7 +209,7 @@ func (c *Client) Detect(ctx context.Context, input io.Reader) (string, error) {
 // undefined.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
 func (c *Client) Language(ctx context.Context, input io.Reader, mimetype string) (string, error) {
-	return c.callString(ctx, input, "PUT", "/language/stream", mimetype)
+	return c.callString(ctx, input, "PUT", "/language/stream", mimetype, nil)
 }
 
 // LanguageString detects the language of the given string, returning the two letter
@@ -215,7 +218,7 @@ func (c *Client) Language(ctx context.Context, input io.Reader, mimetype string)
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
 func (c *Client) LanguageString(ctx context.Context, input, mimetype string) (string, error) {
 	r := strings.NewReader(input)
-	return c.callString(ctx, r, "PUT", "/language/string", mimetype)
+	return c.callString(ctx, r, "PUT", "/language/string", mimetype, nil)
 }
 
 // MetaRecursive parses the given input and all embedded documents. The result
@@ -276,12 +279,12 @@ func (c *Client) MetaRecursiveType(ctx context.Context, input io.Reader, content
 // dst language using t. If the error is not nil, the translation is undefined.
 //if you want to specify what content type applies to the input stream use the mimetype parameter, otherwise set it to "" or default
 func (c *Client) Translate(ctx context.Context, input io.Reader, t Translator, src, dst, mimetype string) (string, error) {
-	return c.callString(ctx, input, "POST", fmt.Sprintf("/translate/all/%s/%s/%s", t, src, dst), mimetype)
+	return c.callString(ctx, input, "POST", fmt.Sprintf("/translate/all/%s/%s/%s", t, src, dst), mimetype, nil)
 }
 
 // Version returns the default hello message from Tika server.
 func (c *Client) Version(ctx context.Context) (string, error) {
-	return c.callString(ctx, nil, "GET", "/version", "")
+	return c.callString(ctx, nil, "GET", "/version", "", nil)
 }
 
 var jsonHeader = http.Header{"Accept": []string{"application/json"}}

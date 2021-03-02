@@ -65,7 +65,7 @@ func TestParse(t *testing.T) {
 	}))
 	defer ts.Close()
 	c := NewClient(nil, ts.URL)
-	got, err := c.Parse(context.Background(), nil, "")
+	got, err := c.Parse(context.Background(), nil, "", false)
 	if err != nil {
 		t.Fatalf("Parse returned nil, want %q", want)
 	}
